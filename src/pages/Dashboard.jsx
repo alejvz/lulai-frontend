@@ -67,6 +67,20 @@ const Dashboard = () => {
           handleChange={handleSearchChange}
         />
       </div>
+
+      <div className="bg-[#FF31A0] mt-5 text-center py-2 lg:px-4 border rounded-lg">
+        <div
+          className="p-2 #02060A items-center text-indigo-100 leading-none lg:rounded-full flex lg:inline-flex"
+          role="alert">
+          <span className="flex rounded-full bg-[#35C7FC] uppercase px-2 py-1 text-xs font-bold mr-3">
+            Nota
+          </span>
+          <span className="font-semibold mr-2 text-left flex-auto">
+          Si las publicaciones no se han cargado, te pedimos que por favor esperes de 1 a 2 minutos. ¡Gracias por tu paciencia! ;)
+          </span>
+        </div>
+      </div>
+
       <div className="mt-10">
         {loading ? (
           <div className="flex justify-center items-center">
