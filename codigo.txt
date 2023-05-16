@@ -1,0 +1,467 @@
+carpeta: components\Card.jsx
+codigo:
+import React from 'react'
+
+import { download } from '../assets';
+import { downloadImage } from '../utils';
+
+const Card = ({ _id, name, prompt, photo }) => {
+  return (
+    <div className="rounded-xl group relative shadow-card hover:shadow-cardhover card">
+      <img
+        src={photo}
+        alt={prompt}
+        className="w-full h-auto object-cover rounded-xl"
+      />
+      <div className="group-hover:flex flex-col max-h-[94.5%] hidden absolute bottom-0 left-0 right-0 bg-[#10131F] m-2 p-4 rounded-md">
+        <p className="text-white text-md overflow-y-auto prompt">{prompt}</p>
+        <div className="mt-5 flex justify-between items-center gap-2">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full object-cover bg-green-700 flex justify-center items-center text-white text-xs font-bold">
+              {name[0]}
+            </div>
+            <p className="text-white text-sm">{name}</p>
+          </div>
+          <button type="button" onClick={() => downloadImage(_id, photo)} className="outline-none bg-transparent border-none">
+            <img src={download} alt="download" className="w-6 h-6 object-contain invert" />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Card;
+
+carpeta: components\FormField.jsx
+codigo:
+import React from 'react'
+
+const FormField = ({ labelName, type, name, placeholder, value, handleChange, isSurpriseMe, handleSurpriseMe }) => {
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <label htmlFor={name} className="block text-sm font-medium text-gray-900">
+          {labelName}
+        </label>
+        {isSurpriseMe &&
+          <button
+            type="button"
+            onClick={handleSurpriseMe}
+            className="font-semibold text-xs bg-[#ECECF1] py-1 px-2 rounded-[5px] text-black"
+          >
+            Surprise me
+          </button>
+        }
+      </div>
+      <input
+        type={type}
+        id={name}
+        name={name}
+        placeholder={placeholder}
+        value={value}
+        onChange={handleChange}
+        required
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#4649FF] focus:border-[#4649FF] outline-none block w-full p-3"
+      />
+    </div>
+  )
+}
+
+export default FormField;
+
+carpeta: components\Loader.jsx
+codigo:
+import React from 'react';
+
+const Loader = () => (
+  <div role="status">
+    <svg aria-hidden="true" className="inline w-10 h-10 mr-2 text-gray-200 animate-spin fill-[#6469ff]" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+      <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+    </svg>
+  </div>
+);
+
+export default Loader;
+
+carpeta: components\index.js
+codigo:
+import Card from './Card';
+import FormField from './FormField';
+import Loader from './Loader';
+
+export {
+  Card,
+  FormField,
+  Loader,
+};
+
+carpeta: pages\CreatePost.jsx
+codigo:
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { preview } from '../assets';
+import { getRandomPrompt } from '../utils';
+import { FormField, Loader } from '../components';
+
+const CreatePost = () => {
+  const navigate = useNavigate();
+  const [generatingImg, setGeneratingImg] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    prompt: '',
+    photo: '',
+  });
+
+  const generatedImage = async () => {
+    if (formData.prompt) {
+      try {
+        setGeneratingImg(true);
+        const response = await fetch('http://localhost:8080/api/v1/dalle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: formData.prompt }),
+        });
+
+        const data = await response.json();
+
+        setFormData({ ...formData, photo: `data:image/jpeg;base64,${data.photo}` });
+      } catch (error) {
+        if (error.response) {
+          console.log(error.response.status);
+          console.log(error.response.data);
+        } else {
+          alert(error.message);
+        }
+      } finally {
+        setGeneratingImg(false);
+      }
+    } else {
+      alert('Please provide proper prompt!');
+    };
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (formData.prompt && formData.photo && !loading) {
+      setLoading(true);
+
+      try {
+        const response = await fetch('http://localhost:8080/api/v1/post', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...formData }),
+        });
+
+        await response.json();
+        navigate('/');
+      } catch (error) {
+        alert(error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      alert('Please generate an image with proper details');
+    };
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSurpriseMe = () => {
+    const randomPrompt = getRandomPrompt(formData.prompt);
+    setFormData({ ...formData, prompt: randomPrompt });
+  };
+
+  return (
+    <section className="max-w-7xl mx-auto">
+      <div>
+        <h1 className="font-extrabold text-[#222328] text-[32px]">Create</h1>
+        <p className="mt-2 text-[#666E75] text-[16px] max-w-[500px]">Create imaginative and visually stunning images through DALL-E AI and share them with the community.</p>
+      </div>
+
+      <form className="mt-16 max-w-3xl" onSubmit={handleSubmit}      >
+        <div className="flex flex-col gap-5">
+          <FormField
+            labelName="Your name"
+            type="text"
+            name="name"
+            placeholder="Insert you name here"
+            value={formData.name}
+            handleChange={handleChange}
+          />
+          <FormField
+            labelName="Prompt"
+            type="text"
+            name="prompt"
+            placeholder="A comic book cover of a superhero wearing headphones"
+            value={formData.prompt}
+            handleChange={handleChange}
+            handleSurpriseMe={handleSurpriseMe}
+            isSurpriseMe
+          />
+          <div className="relative bg-gray-500 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-64 p-3 h-64 flex justify-center items-center">
+            {formData.photo ? (
+              <img
+                src={formData.photo}
+                alt={formData.prompt}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <img
+                src={preview}
+                alt="preview"
+                className="w-9/12 h-9/12 object-contain opacity-40"
+              />
+            )}
+            {generatingImg && (
+              <div className="absolute inset-0 z-0 flex justify-center items-center bg-[rgba(0,0,0,0.5)] rounded-lg">
+                <Loader />
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="mt-5 flex gap-5">
+          <button
+            type="button"
+            onClick={generatedImage}
+            className="text-white bg-green-700 font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+          >
+            {generatingImg ? 'Generating...' : 'Generate'}
+          </button>
+        </div>
+        <div className="mt-10">
+          <p className="mt-2 text-[#666E75] text-[14px]">Once you have created the image you want, you can share with others in the community</p>
+          {formData.photo && !loading ?
+            <button
+              type="submit"
+              className="mt-3 text-white bg-[#6469FF] font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+            >
+              {loading ? 'Sharing...' : 'Share with the community'}
+            </button>
+            :
+            <button
+              type="submit"
+              className="mt-3 text-white bg-gray-700 font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center opacity-50"
+              disabled
+            >
+              {loading ? 'Sharing...' : 'Share with the community'}
+            </button>
+          }
+        </div>
+      </form>
+    </section>
+  );
+};
+
+export default CreatePost;
+
+carpeta: pages\Home.jsx
+codigo:
+
+import { useState, useEffect } from 'react';
+import { Loader, Card, FormField } from '../components';
+
+const Home = () => {
+  const [loading, setLoading] = useState(false);
+  const [allPosts, setAllPosts] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const [searchedResults, setSearchedResults] = useState(null);
+  const [searchTimeout, setSearchTimeout] = useState(null);
+
+  const fetchPosts = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8080/api/v1/post', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+
+        setAllPosts(result.data.reverse());
+      };
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoading(false);
+    };
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleSearchChange = (e) => {
+    clearTimeout(searchTimeout);
+    setSearchText(e.target.value);
+
+    setSearchTimeout(
+      setTimeout(() => {
+        const searchResults = allPosts.filter((item) =>
+          item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          item.prompt.toLowerCase().includes(searchText.toLowerCase())
+        );
+
+        setSearchedResults(searchResults);
+      }, 500)
+    );
+  };
+
+  return (
+    <section className="max-w-7xl mx-auto">
+      <div>
+        <h1 className="font-extrabold text-[#222328] text-[32px]">Imagenes creados por nuestra comunidad</h1>
+        <p className="mt-2 text-[#666E75] text-[16px] max-w-[500px]">Explore una colección de imágenes imaginativas y visualmente impresionantes generadas por Inteligencia Artificial</p>
+      </div>
+      <div className="mt-16">
+        <FormField
+          labelName="Search posts"
+          type="text"
+          name="text"
+          placeholder="Search posts"
+          value={searchText}
+          handleChange={handleSearchChange}
+        />
+      </div>
+      <div className="mt-10">
+        {loading ? (
+          <div className="flex justify-center items-center">
+            <Loader />
+          </div>
+        ) : (
+          <>
+            {searchText &&
+              <h2 className="font-medium text-[#666E75] text-xl mb-3">
+                Showing results for <span className="text-[#222328]">{searchText}</span>
+              </h2>
+            }
+            <div className="grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3">
+              {searchText ? (
+                <RenderCards
+                  data={searchedResults}
+                  title="No search results found"
+                />
+              ) : (
+                <RenderCards
+                  data={allPosts}
+                  title="No posts found"
+                />
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+};
+
+const RenderCards = ({ data, title }) => {
+  if (data?.length > 0)
+    return data.map((post) => <Card key={post.id} {...post} />);
+
+  return (
+    <h2 className="mt-5 font-bold text-[#6449FF] text-xl uppercase">{title}</h2>
+  );
+};
+
+export default Home;
+
+carpeta: pages\index.js
+codigo:
+import Home from './Home';
+import CreatePost from './CreatePost';
+
+export {
+  Home,
+  CreatePost,
+};
+
+carpeta: utils\index.js
+codigo:
+import FileSaver from 'file-saver';
+
+import { surpriseMePrompts } from '../constants';
+
+export function getRandomPrompt(prompt) {
+  const randomIndex = Math.floor(Math.random() * surpriseMePrompts.length);
+  const randomPrompt = surpriseMePrompts[randomIndex];
+
+  if (randomPrompt === prompt) return getRandomPrompt(prompt);
+
+  return randomPrompt;
+};
+
+export async function downloadImage(_id, photo) {
+  FileSaver.saveAs(photo, `download-${_id}.jpg`);
+};
+
+app.jsx
+codigo:
+import React from "react";
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+
+import { logo } from "./assets";
+import { Home, CreatePost } from "./pages";
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <header className="w-full flex justify-between items-center bg-white sm:px-8 px-4 py-4 border-b border-b-[#E6EBF4]">
+        <Link to="/">
+          <img src={logo} alt={logo} className="w-28 object-contain" />
+        </Link>
+        <div className="flex space-x-4">
+          <Link
+            to="/"
+            className="font-inter font-medium bg-[#FF31A0] text-white px-4 py-2 rounded-md"
+          >
+            Inicio
+          </Link>
+          <Link
+            to="/create-post"
+            className="font-inter font-medium bg-[#FF31A0] text-white px-4 py-2 rounded-md"
+          >
+            Crear
+          </Link>
+        </div>
+      </header>
+
+      <main className="sm:p-8 px-4 py-8 w-full bg-[#F9F9F9] min-h-[calc(100vh-73px)]">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/create-post" element={<CreatePost />} />
+        </Routes>
+      </main>
+    </BrowserRouter>
+  );
+};
+
+export default App;
+
+main.jsx
+codigo:
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+
