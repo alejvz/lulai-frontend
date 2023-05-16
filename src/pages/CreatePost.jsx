@@ -85,7 +85,7 @@ const CreatePost = () => {
     <section className="max-w-7xl mx-auto">
       <div>
         <h1 className="font-extrabold text-[#222328] text-[32px]">Crear con LULAI ;)</h1>
-        <p className="mt-2 text-[#666E75] text-[16px] max-w-[500px]">Crea diseños imaginativos y visualmente impresionantes con la ayuda de la inteligencia artificial, y compártelos con más personas.</p>
+        <p className="mt-2 text-[#666E75] text-[16px] max-w-[500px]">Crea diseños imaginativos y visualmente impresionantes con la ayuda de la inteligencia artificial</p>
       </div>
 
       <form className="mt-16 max-w-3xl" onSubmit={handleSubmit}      >

@@ -4,7 +4,6 @@ import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import { logo } from "./assets";
 import { Dashboard, CreatePost } from "./pages";
 
-
 const App = () => {
   return (
     <BrowserRouter>
@@ -15,16 +14,26 @@ const App = () => {
         <div className="flex space-x-4">
           <Link
             to="/"
-            className="font-inter font-medium bg-[#FF31A0] text-white px-4 py-2 rounded-md"
+            className="font-inter font-medium bg-[#35C7FC] text-white px-4 py-2 rounded-md"
           >
             Inicio
           </Link>
+
+          <Link
+            to="https://www.lulai.co/"
+            target="_self"
+            className="font-inter font-medium bg-[#35C7FC] text-white px-4 py-2 rounded-md"
+          >
+            Store
+          </Link>
+
           <Link
             to="/create-post"
             className="font-inter font-medium bg-[#FF31A0] text-white px-4 py-2 rounded-md"
           >
             Crear
           </Link>
+
         </div>
       </header>
 
