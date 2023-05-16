@@ -54,8 +54,8 @@ const Dashboard = () => {
   return (
     <section className="max-w-7xl mx-auto">
       <div>
-        <h1 className="font-extrabold text-[#222328] text-[32px]">Imágenes creadas por nuestra comunidad</h1>
-        <p className="mt-2 text-[#666E75] text-[16px] max-w-[500px]">Explore una colección de imágenes imaginativas y visualmente impresionantes generadas por Inteligencia Artificial</p>
+        <h1 className="font-extrabold text-[#222328] text-[32px]">Diseños creadas por nuestra comunidad</h1>
+        <p className="mt-2 text-[#666E75] text-[16px] max-w-[500px]">Explore una colección de diseños imaginativas y visualmente impresionantes generadas por Inteligencia Artificial</p>
       </div>
       <div className="mt-16">
         <FormField
